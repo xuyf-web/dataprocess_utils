@@ -75,7 +75,7 @@ def find_csv_files_for_stations(station_ids, data_dir, year_limit=None):
             logger.info(f"将搜索限制在 {year_limit} 年份目录")
             search_dir = year_dir
         else:
-            logger.warning(f"年份目录 {year_limit} 不存在，将搜索整个数据目录")
+            # logger.warning(f"年份目录 {year_limit} 不存在，将搜索整个数据目录")
             search_dir = data_dir
     else:
         search_dir = data_dir
@@ -95,7 +95,8 @@ def find_csv_files_for_stations(station_ids, data_dir, year_limit=None):
             stations_with_data.append(station_id)
             logger.info(f"站点 {station_id} 找到 {len(matched_files)} 个CSV文件")
         else:
-            logger.warning(f"站点 {station_id} 未找到对应的CSV文件")
+            # logger.warning(f"站点 {station_id} 未找到对应的CSV文件")
+            pass
         
         # 每处理10个站点显示进度
         if (i + 1) % 10 == 0 or i == len(station_ids) - 1:
