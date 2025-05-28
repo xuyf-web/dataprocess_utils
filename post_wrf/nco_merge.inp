@@ -1,0 +1,6 @@
+wrfout_directory = /data8/xuyf/Project/Shouxian/scripts/post_wrf/nco/test
+start_time       = 2024-04-01 12:00
+end_time         = 2024-04-01 15:00
+domain           = 1
+variables        = T, T2, o3
+! blank line
