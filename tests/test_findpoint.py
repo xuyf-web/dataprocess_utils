@@ -21,9 +21,9 @@ class FindPointTestCase(unittest.TestCase):
         self.assertTrue(np.all(distances[:-1] <= distances[1:]))
 
     def test_weighted_average_handles_nan_neighbors(self):
-        indices = nearest_positions(3.3, 7.8, self.lon2d, self.lat2d, num=4)
+        i_indices, j_indices = nearest_positions(3.3, 7.8, self.lon2d, self.lat2d, num=4)
         data = self.data2d.copy()
-        data[indices[0][0], indices[1][0]] = np.nan
+        data[i_indices[0], j_indices[0]] = np.nan
 
         value = weighted_average(3.3, 7.8, self.lon2d, self.lat2d, data, num=4)
         self.assertTrue(np.isfinite(value))

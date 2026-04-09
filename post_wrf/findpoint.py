@@ -20,12 +20,18 @@ def nearest_position(stn_lon, stn_lat, lon2d, lat2d):
 def nearest_positions(stn_lon, stn_lat, lon2d, lat2d, num=4):
     """
     获取最临近的指定数量num个格点坐标索引
+
+    参数num会转换为整数，并限制在[1, 网格总点数]范围内。
     """
     
     distances_squared = _distance_squared(stn_lon, stn_lat, lon2d, lat2d)
     flat_distances = distances_squared.ravel()
     total_points = flat_distances.size
-    num = max(1, min(int(num), total_points))
+    try:
+        num = int(num)
+    except (TypeError, ValueError) as exc:
+        raise ValueError('num must be an integer-like value') from exc
+    num = max(1, min(num, total_points))
 
     # 使用argpartition优化大网格下的性能，再对候选索引做局部排序以保持距离升序
     candidate_indices = np.argpartition(flat_distances, num - 1)[:num]
