@@ -21,6 +21,7 @@ def nearest_positions(stn_lon, stn_lat, lon2d, lat2d, num=4):
     """
     获取最临近的指定数量num个格点坐标索引
 
+    `num` is converted to int and clipped to [1, total grid points].
     参数num会转换为整数，并限制在[1, 网格总点数]范围内。
     """
     

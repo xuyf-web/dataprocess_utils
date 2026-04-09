@@ -28,6 +28,14 @@ class FindPointTestCase(unittest.TestCase):
         value = weighted_average(3.3, 7.8, self.lon2d, self.lat2d, data, num=4)
         self.assertTrue(np.isfinite(value))
 
+    def test_weighted_average_returns_nan_when_all_neighbors_invalid(self):
+        i_indices, j_indices = nearest_positions(3.3, 7.8, self.lon2d, self.lat2d, num=4)
+        data = self.data2d.copy()
+        data[i_indices, j_indices] = np.nan
+
+        value = weighted_average(3.3, 7.8, self.lon2d, self.lat2d, data, num=4)
+        self.assertTrue(np.isnan(value))
+
     def test_weighted_average_exact_grid_hit_returns_point_value(self):
         value = weighted_average(5.0, 5.0, self.lon2d, self.lat2d, self.data2d, num=4)
         self.assertEqual(value, self.data2d[5, 5])
