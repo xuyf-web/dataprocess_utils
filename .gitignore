@@ -6,3 +6,5 @@
 *.tiff
 *.ico
 *.log
+__pycache__/
+*.pyc
