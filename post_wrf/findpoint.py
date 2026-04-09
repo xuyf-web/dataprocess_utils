@@ -31,13 +31,18 @@ def nearest_positions(stn_lon, stn_lat, lon2d, lat2d, num=4):
     try:
         num = int(num)
     except (TypeError, ValueError) as exc:
-        raise ValueError('num must be an integer-like value') from exc
+        raise ValueError(
+            f'num must be an integer-like value, got: {type(num).__name__}'
+        ) from exc
     num = max(1, min(num, total_points))
 
     # 使用argpartition优化大网格下的性能，再对候选索引做局部排序以保持距离升序
-    candidate_indices = np.argpartition(flat_distances, num - 1)[:num]
-    local_sort = np.argsort(flat_distances[candidate_indices])
-    flat_indices = candidate_indices[local_sort]
+    if num == total_points:
+        flat_indices = np.argsort(flat_distances)
+    else:
+        candidate_indices = np.argpartition(flat_distances, num - 1)[:num]
+        local_sort = np.argsort(flat_distances[candidate_indices])
+        flat_indices = candidate_indices[local_sort]
     indices = np.unravel_index(flat_indices, distances_squared.shape)
     
     return indices

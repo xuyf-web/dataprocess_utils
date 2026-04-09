@@ -39,6 +39,8 @@ class FindPointTestCase(unittest.TestCase):
     def test_weighted_average_exact_grid_hit_returns_point_value(self):
         value = weighted_average(5.0, 5.0, self.lon2d, self.lat2d, self.data2d, num=4)
         self.assertEqual(value, self.data2d[5, 5])
+
+    def test_nearest_position_exact_grid_hit(self):
         self.assertEqual(nearest_position(5.0, 5.0, self.lon2d, self.lat2d), (5, 5))
 
 
