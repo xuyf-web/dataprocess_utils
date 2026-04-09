@@ -1,16 +1,16 @@
 import numpy as np
 
+def _distance_squared(stn_lon, stn_lat, lon2d, lat2d):
+    difflon = stn_lon - lon2d
+    difflat = stn_lat - lat2d
+    return np.square(difflon) + np.square(difflat)
+
 def nearest_position(stn_lon, stn_lat, lon2d, lat2d):
     """
     获取最临近格点坐标索引
     """
     
-    # 计算差异矩阵
-    difflon = stn_lon - lon2d
-    difflat = stn_lat - lat2d
-    
-    # 计算距离平方
-    distances_squared = np.square(difflon) + np.square(difflat)
+    distances_squared = _distance_squared(stn_lon, stn_lat, lon2d, lat2d)
     
     # 获取最小距离的索引
     min_index = np.unravel_index(np.argmin(distances_squared), distances_squared.shape)
@@ -20,17 +20,29 @@ def nearest_position(stn_lon, stn_lat, lon2d, lat2d):
 def nearest_positions(stn_lon, stn_lat, lon2d, lat2d, num=4):
     """
     获取最临近的指定数量num个格点坐标索引
+
+    `num` is converted to int and clipped to [1, total grid points].
+    参数num会转换为整数，并限制在[1, 网格总点数]范围内。
     """
     
-    # 计算差异矩阵
-    difflon = stn_lon - lon2d
-    difflat = stn_lat - lat2d
-    
-    # 计算距离平方
-    distances_squared = np.square(difflon) + np.square(difflat)
-    
-    # 获取最小的指定数量num个距离的索引
-    flat_indices = np.argsort(distances_squared.ravel())[:num]
+    distances_squared = _distance_squared(stn_lon, stn_lat, lon2d, lat2d)
+    flat_distances = distances_squared.ravel()
+    total_points = flat_distances.size
+    try:
+        num = int(num)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f'num must be an integer-like value, got: {type(num).__name__}'
+        ) from exc
+    num = max(1, min(num, total_points))
+
+    # 使用argpartition优化大网格下的性能，再对候选索引做局部排序以保持距离升序
+    if num == total_points:
+        flat_indices = np.argsort(flat_distances)
+    else:
+        candidate_indices = np.argpartition(flat_distances, num - 1)[:num]
+        local_sort = np.argsort(flat_distances[candidate_indices])
+        flat_indices = candidate_indices[local_sort]
     indices = np.unravel_index(flat_indices, distances_squared.shape)
     
     return indices
@@ -48,13 +60,29 @@ def weighted_average(stn_lon, stn_lat, lon2d, lat2d, data2d, num=4):
     points_data = data2d.flat[flat_indices]
 
     # 计算num个格点到站点的距离
-    difflon = stn_lon - lon2d.flat[flat_indices]
-    difflat = stn_lat - lat2d.flat[flat_indices]
-    distances_squared = np.square(difflat) + np.square(difflon)
+    distances_squared = _distance_squared(
+        stn_lon,
+        stn_lat,
+        lon2d.flat[flat_indices],
+        lat2d.flat[flat_indices],
+    )
 
-    # 计算权重（距离的倒数可以作为权重）
-    weights = 1 / (distances_squared + 1e-10)  # 避免除零错误
-    weights /= np.sum(weights)  # 归一化权重
+    # 过滤无效值，避免单个NaN传播为整体NaN
+    valid_mask = np.isfinite(points_data) & np.isfinite(distances_squared)
+    if not np.any(valid_mask):
+        return np.nan
+
+    points_data = points_data[valid_mask]
+    distances_squared = distances_squared[valid_mask]
+
+    # 若站点与格点重合，直接返回重合点均值
+    zero_dist_mask = distances_squared == 0
+    if np.any(zero_dist_mask):
+        return np.mean(points_data[zero_dist_mask])
+
+    # 计算权重（距离倒数作为权重）
+    weights = 1 / distances_squared
+    weights /= np.sum(weights)
 
     # 加权平均
     weighted_avg = np.sum(points_data * weights)
