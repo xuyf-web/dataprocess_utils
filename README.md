@@ -18,6 +18,13 @@ WRF模拟结果提取工具，支持以下三种模式：
 - `nearest_positions`：获取多个最临近格点索引
 - `weighted_average`：计算近邻格点的加权平均值
 
+### meic2wrf/
+MEIC 排放清单到 WRF-Chem 排放输入的处理工具（面向 MEIC 2023、WRF v4.2、CB05 机制 `emiss_opt=14`）：
+- `merged.py`：将按部门拆分的 MEIC 原始文件合并为按物种分类的文件
+- `meictowrf.py`：把 MEIC 数据整理并插值到 WRF-Chem 网格，生成 `wrfchemi_*` 排放文件
+
+详见 `meic2wrf/README.md`。
+
 ## 气象观测数据提取工具
 
 ### extract_gsod.py
