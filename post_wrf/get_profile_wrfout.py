@@ -11,14 +11,15 @@ Date: 2025-04-14
 # ============================================================
 
 # Path Settings
-WRFOUT_DIR = '/data8/xuyf/Project/Xishan/data/wrfout'
-OUTPUT_DIR = '/data8/xuyf/Project/Xishan/data/postwrf'
+# WRFOUT_DIR = '/data8/xuyf/Data/wrfout/shouxian/noDabieBIO'
+WRFOUT_DIR = '/data8/xuyf/Project/Shouxian/data/Zhouxy'
+OUTPUT_DIR = '/data8/xuyf/Project/Shouxian/data/postwrf'
 DOMAIN = 'd01'
-OUTPUT_FILENAME = 'profile.xlsx'
+OUTPUT_FILENAME = 'base_full.xlsx'
 
 # Time Range Settings
-START_DATE = '2024-07-22 00:00:00'
-END_DATE = '2024-09-08 00:00:00'
+START_DATE = '2024-03-09 00:00:00'
+END_DATE = '2024-04-15 00:00:00'
 
 # Location Settings
 LONGITUDE = 116.72
@@ -34,13 +35,21 @@ CHEMICAL_VARS = {
   'NO'                   : 'no',
   'CO'                   : 'co',
   'ISOP'                 : 'iso',       # iso for CBMZ, isoprene for SAPRC99
-  'PM25'                 : 'PM2_5_DRY',
-  'PM10'                 : 'PM10',
+#   'PM25'                 : 'PM2_5_DRY',
+#   'PM10'                 : 'PM10',
+  'SO2'                  : 'so2',
+  'HCHO'                 : 'hcho',
+  'MGLY'                 : 'mgly',
   'BC'                   : 'bc',    # bc_a0* for sum up all bc
+  'OC'                   : 'oc',
+  'SO4'                  : 'so4',
+  'NO3'                  : 'no3',
+  'NH4'                  : 'nh4',
+  'Chl'                  : 'cl',
 }
 
 # 日志文件路径
-LOG_FILE = "get_profile_wrfout.log"
+LOG_FILE = "wrfout_profile.log"
 
 # ============================================================
 # Script Code (Do not modify)
@@ -80,6 +89,7 @@ rm_coords = ['XLONG', 'XLAT', 'XLONG_U', 'XLAT_U', 'XLONG_V', 'XLAT_V', 'XTIME']
 
 # 配置dask以避免内存问题
 dask.config.set({"array.chunk-size": "64MiB"})
+dask.config.set({"array.slicing.split_large_chunks": False})
 
 def generate_filelist(datapath, startdate, enddate, domain):
     """
@@ -189,10 +199,11 @@ def detect_available_chemical_vars(ds):
     found_count = 0
 
     for output_var, wrfout_var in CHEMICAL_VARS.items():
-        if wrfout_var == 'bc':
-            bc_vars = [key for key in ds.keys() if re.match(r'bc_a\d+', key)]
-            logger.info(f"Found {len(bc_vars)} bc_a* variables -> {output_var}")
-            found_count += len(bc_vars)
+        if wrfout_var in ['bc', 'oc', 'no3', 'so4', 'nh4', 'cl']:
+            vars = [key for key in ds.keys() if re.match(f'{wrfout_var}_a\\d+', key)]
+            logger.info(f"Found {len(vars)} {wrfout_var}_a* variables -> {output_var}")
+            found_count += len(vars)
+            # available_vars[output_var] = vars
         elif wrfout_var in ds:
             found_count += 1
             available_vars[output_var] = wrfout_var
@@ -249,6 +260,7 @@ def process_wrf_profile(datapath):
             dataset[output_var] = ds[wrfout_var].isel(south_north=nr_point[0], west_east=nr_point[1])
         
         # 黑碳处理
+        # 黑碳处理 (Black carbon processing)
         if 'bc' in CHEMICAL_VARS.values():
             bc_vars = [key for key in ds.keys() if re.match(r'bc_a\d+', key)]
             if bc_vars:
@@ -256,6 +268,51 @@ def process_wrf_profile(datapath):
                 logger.info(f"Processed black carbon from {len(bc_vars)} variables")
             else:
                 logger.warning("Cannot find black carbon variables (bc_a0*)")
+        
+        # 有机碳处理 (Organic carbon processing)
+        if 'oc' in CHEMICAL_VARS.values():
+            oc_vars = [key for key in ds.keys() if re.match(r'oc_a\d+', key)]
+            if oc_vars:
+                dataset['OC'] = sum(ds[key].isel(south_north=nr_point[0], west_east=nr_point[1]) for key in oc_vars)
+                logger.info(f"Processed organic carbon from {len(oc_vars)} variables")
+            else:
+                logger.warning("Cannot find organic carbon variables (oc_a0*)")
+        
+        # 硝酸盐处理 (Nitrate processing)
+        if 'no3' in CHEMICAL_VARS.values():
+            no3_vars = [key for key in ds.keys() if re.match(r'no3_a\d+', key)]
+            if no3_vars:
+                dataset['NO3'] = sum(ds[key].isel(south_north=nr_point[0], west_east=nr_point[1]) for key in no3_vars)
+                logger.info(f"Processed nitrate from {len(no3_vars)} variables")
+            else:
+                logger.warning("Cannot find nitrate variables (no3_a0*)")
+        
+        # 硫酸盐处理 (Sulfate processing)
+        if 'so4' in CHEMICAL_VARS.values():
+            so4_vars = [key for key in ds.keys() if re.match(r'so4_a\d+', key)]
+            if so4_vars:
+                dataset['SO4'] = sum(ds[key].isel(south_north=nr_point[0], west_east=nr_point[1]) for key in so4_vars)
+                logger.info(f"Processed sulfate from {len(so4_vars)} variables")
+            else:
+                logger.warning("Cannot find sulfate variables (so4_a0*)")
+        
+        # 铵盐处理 (Ammonium processing)
+        if 'nh4' in CHEMICAL_VARS.values():
+            nh4_vars = [key for key in ds.keys() if re.match(r'nh4_a\d+', key)]
+            if nh4_vars:
+                dataset['NH4'] = sum(ds[key].isel(south_north=nr_point[0], west_east=nr_point[1]) for key in nh4_vars)
+                logger.info(f"Processed ammonium from {len(nh4_vars)} variables")
+            else:
+                logger.warning("Cannot find ammonium variables (nh4_a0*)")
+        
+        # 氯化物处理 (Chloride processing)
+        if 'cl' in CHEMICAL_VARS.values():
+            cl_vars = [key for key in ds.keys() if re.match(r'cl_a\d+', key)]
+            if cl_vars:
+                dataset['Chl'] = sum(ds[key].isel(south_north=nr_point[0], west_east=nr_point[1]) for key in cl_vars)
+                logger.info(f"Processed chloride from {len(cl_vars)} variables")
+            else:
+                logger.warning("Cannot find chloride variables (cl_a0*)")
     
     return dataset.drop_vars(rm_coords, errors='ignore')
 

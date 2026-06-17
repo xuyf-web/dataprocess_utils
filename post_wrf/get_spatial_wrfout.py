@@ -11,14 +11,15 @@ Date: 2025-04-14
 # ============================================================
 
 # Path Settings
-WRFOUT_DIR = '/data8/xuyf/Project/Xishan/data/wrfout'
-OUTPUT_DIR = '/data8/xuyf/Project/Xishan/data/postwrf'
+WRFOUT_DIR = '/data8/xuyf/Data/wrfout/shouxian/noDabieBIO'
+# WRFOUT_DIR = '/data8/xuyf/Project/Shouxian/data/Zhouxy'
+OUTPUT_DIR = '/data8/xuyf/Project/Shouxian/data/postwrf'
 DOMAIN = 'd01'
-OUTPUT_FILENAME = 'sfc.nc'
+OUTPUT_FILENAME = 'noDabieBIO_sfc.nc'
 
 # Time Range Settings
-START_DATE = '2024-07-22 00:00:00'
-END_DATE = '2024-09-08 00:00:00'
+START_DATE = '2024-03-09 00:00:00'
+END_DATE = '2024-04-15 00:00:00'
 
 # Level Settings
 LEVEL = 0  # 0: surface, 2: 100m, 11: 500m, 19: 1000m
@@ -35,11 +36,11 @@ CHEMICAL_VARS = {
   'ISOP'                 : 'iso',       # iso for CBMZ, isoprene for SAPRC99
   'PM25'                 : 'PM2_5_DRY',
   'PM10'                 : 'PM10',
-  'BC'                   : 'bc',    # bc_a0* for sum up all bc
+#   'BC'                   : 'bc',    # bc_a0* for sum up all bc
 }
 
 # 日志文件路径
-LOG_FILE = "get_spatial_wrfout.log"
+LOG_FILE = "wrfout_spatial.log"
 
 # ============================================================
 # Script Code (Do not modify)
