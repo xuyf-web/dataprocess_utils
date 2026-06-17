@@ -72,6 +72,11 @@ mixed_text(ax, 0.5, 0.5, r'Times New Roman和宋体: $e^{i \pi} + 1 = 0$', fonts
 依赖 Times New Roman、SimSun 字体（已放在 `~/.local/share/fonts/`）。新增字体后若 matplotlib
 找不到，删除字体缓存重建即可：`rm ~/.cache/matplotlib/fontlist-*.json`。直接运行该脚本会生成 demo 图。
 
+### plotAQI/
+空气质量（AQI）逐日绘图工具：
+- `plot_oneday.py`：绘制单日 AQI 空间分布（含昼/夜）
+- `batch_plot.sh`：按日期批量调用绘图
+
 ## 使用说明
 
 各脚本文件顶部都有参数配置区域，可根据需要修改相关参数。大多数脚本可直接运行：

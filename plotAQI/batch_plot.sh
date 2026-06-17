@@ -30,7 +30,7 @@ do
     echo "Processing date: ${current_date_str}" | tee -a ${LOG_FILE}
     
     # 调用Python脚本并记录输出
-    python3.12 plot_aqi_oneday.py ${current_date_str} >> ${LOG_FILE} 2>&1
+    python3.12 plot_oneday.py ${current_date_str} >> ${LOG_FILE} 2>&1
     
     # 检查Python脚本的执行状态
     if [ $? -eq 0 ]; then

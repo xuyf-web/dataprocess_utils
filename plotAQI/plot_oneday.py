@@ -385,7 +385,7 @@ def main():
     # Data directories
     era5_uv_dir = '/data4/PUB_DATA_ALL/Reanalysis/ERA5/hourly_surface/100m_uv'
     aqi_dir = '/data4/PUB_DATA_ALL/Observation/AQI_station'
-    shapefile_dir = '/data8/xuyf/data/shapefile/GS(2024)0650-SHP/'
+    shapefile_dir = '/data8/xuyf/Data/shapefile/GS(2024)0650-SHP/'
     
     # Create time ranges
     daytime_range = create_time_range(PLOT_DATE, DAYTIME_START, DAYTIME_END, 
