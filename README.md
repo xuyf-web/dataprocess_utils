@@ -84,6 +84,17 @@ mixed_text(ax, 0.5, 0.5, r'Times New Roman和宋体: $e^{i \pi} + 1 = 0$', fonts
 - `plot_oneday.py`：绘制单日 AQI 空间分布（含昼/夜）
 - `batch_plot.sh`：按日期批量调用绘图
 
+### polar_subplots_lits.py
+基于 cartopy / rasterio 的极地投影多子图绘图脚本，用于读取 TIFF（如夏季 LST）栅格并叠加矢量边界出图。
+
+### TangColorScheme.py
+唐风配色方案集合（`color_schemes`，5 组各 5 色），供绘图时统一取色。
+
+## 其它工具
+
+### init_project.sh
+项目脚手架脚本，按当前项目的目录结构快速创建新项目文件夹：`./init_project.sh <project_name>`。
+
 ## 使用说明
 
 各脚本文件顶部都有参数配置区域，可根据需要修改相关参数。大多数脚本可直接运行：
